@@ -1,0 +1,13 @@
+C:\Users\Dusk\documents\visual studio 2017\Projects\Bardiche_v2.0\Bardiche_v2.0\bin\Debug\netcoreapp1.1\Bardiche_v2.0.deps.json
+C:\Users\Dusk\documents\visual studio 2017\Projects\Bardiche_v2.0\Bardiche_v2.0\bin\Debug\netcoreapp1.1\Bardiche_v2.0.runtimeconfig.json
+C:\Users\Dusk\documents\visual studio 2017\Projects\Bardiche_v2.0\Bardiche_v2.0\bin\Debug\netcoreapp1.1\Bardiche_v2.0.runtimeconfig.dev.json
+C:\Users\Dusk\documents\visual studio 2017\Projects\Bardiche_v2.0\Bardiche_v2.0\bin\Debug\netcoreapp1.1\Bardiche_v2.0.dll
+C:\Users\Dusk\documents\visual studio 2017\Projects\Bardiche_v2.0\Bardiche_v2.0\obj\Debug\netcoreapp1.1\Bardiche_v2.0.csprojResolveAssemblyReference.cache
+C:\Users\Dusk\documents\visual studio 2017\Projects\Bardiche_v2.0\Bardiche_v2.0\obj\Debug\netcoreapp1.1\Bardiche_v2.0.AssemblyInfo.cs
+C:\Users\Dusk\documents\visual studio 2017\Projects\Bardiche_v2.0\Bardiche_v2.0\obj\Debug\netcoreapp1.1\Bardiche.Properties.Resources.resources
+C:\Users\Dusk\documents\visual studio 2017\Projects\Bardiche_v2.0\Bardiche_v2.0\obj\Debug\netcoreapp1.1\Bardiche_v2.0.csproj.GenerateResource.Cache
+C:\Users\Dusk\documents\visual studio 2017\Projects\Bardiche_v2.0\Bardiche_v2.0\bin\Debug\netcoreapp1.1\Bardiche_v2.0.pdb
+C:\Users\Dusk\documents\visual studio 2017\Projects\Bardiche_v2.0\Bardiche_v2.0\obj\Debug\netcoreapp1.1\Bardiche_v2.0.dll
+C:\Users\Dusk\documents\visual studio 2017\Projects\Bardiche_v2.0\Bardiche_v2.0\obj\Debug\netcoreapp1.1\Bardiche_v2.0.pdb
+C:\Users\Dusk\Documents\Visual Studio 2017\Projects\Bardiche_v2.0\Bardiche_v2.0\obj\Debug\netcoreapp1.1\Bardiche_v2.0.csproj.CoreCompileInputs.cache
+C:\Users\Dusk\Documents\Visual Studio 2017\Projects\Bardiche_v2.0\Bardiche_v2.0\obj\Debug\netcoreapp1.1\Bardiche_v2.0.AssemblyInfoInputs.cache
