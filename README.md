@@ -4,7 +4,7 @@ A Discord bot written using the Discord.NET library. Primary functions are queri
 
 ### Usage
 
-Only self-hosting is supported. To do so, feel free to copile the project yourself or to download the [release version] (bin/).
+Only self-hosting is supported. To do so, feel free to copile the project yourself or use the [release version] (/bin/Release/Bardiche2.1_release/).
 Next, edit in the needed information into the config.json file under the Resources folder.
 The needed information is as follows:
 * Bot token - Get it by creating the bot application to add to your server [here] (https://discordapp.com/developers/applications/me).
