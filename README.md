@@ -12,6 +12,10 @@ The needed information is as follows:
 * Admin id - List for admin ids. Used for the two commands that require the user to be an admin: prune everyone's messages and prune the bot messages.
 * Bot id - Required for pruning the bot messages.
 The last three values can be gotten by right-clicking the channel / users / bots within Discord with the Developer mode enabled and selecting "Copy ID".
+Lastly, run it by navigating to the release folder in the cmd and typing:
+```
+dotnet Bardiche_v2.1.dll
+```
 
 Bot commands can be seen by using the !help command.
 
