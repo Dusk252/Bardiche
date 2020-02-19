@@ -1,9 +1,0 @@
-{
-  "runtimeOptions": {
-    "additionalProbingPaths": [
-      "C:\\Users\\Dusk\\.dotnet\\store\\|arch|\\|tfm|",
-      "C:\\Users\\Dusk\\.nuget\\packages",
-      "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackagesFallback"
-    ]
-  }
-}
