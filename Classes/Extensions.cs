@@ -1,12 +1,15 @@
 ﻿using Bardiche.JSONModels;
 using Bardiche.Properties;
 using Discord;
+using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,10 +19,9 @@ namespace Bardiche.Classes
     {
         public static DateTime startTime;
         public static Dictionary<string, string[]> directories;
+        private static Random rng = new Random();
 
         public static ConfigModel config_values;
-
-        private static Random rng = new Random();
 
         public static void setUpdate(DateTime update)
         {
@@ -39,6 +41,7 @@ namespace Bardiche.Classes
 
         public static string Scramble(this string word)
         {
+
             var letters = word.ToArray();
             var count = 0;
             for (var i = 0; i < letters.Length; i++)
@@ -58,7 +61,6 @@ namespace Bardiche.Classes
             }
             return "`" + string.Join(" ", letters) + "`";
         }
-
         public static string TrimTo(this string str, int num, bool hideDots = false)
         {
             if (num < 0)
@@ -70,6 +72,37 @@ namespace Bardiche.Classes
             if (str.Length < num)
                 return str;
             return string.Concat(str.Take(num - 3)) + (hideDots ? "" : "...");
+        }
+
+        /// <summary>
+        /// Randomizes element order in a list
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        public static IList<T> Shuffle<T>(this IList<T> list)
+        {
+            using (var provider = RandomNumberGenerator.Create())
+            {
+                // Thanks to @Joe4Evr for finding a bug in the old version of the shuffle
+                var n = list.Count;
+                while (n > 1)
+                {
+                    var box = new byte[(n / Byte.MaxValue) + 1];
+                    int boxSum;
+                    do
+                    {
+                        provider.GetBytes(box);
+                        boxSum = box.Sum(b => b);
+                    }
+                    while (!(boxSum < n * ((Byte.MaxValue * box.Length) / n)));
+                    var k = (boxSum % n);
+                    n--;
+                    var value = list[k];
+                    list[k] = list[n];
+                    list[n] = value;
+                }
+                return list;
+            }
         }
 
         public static int RNG(int n1, int n2)
@@ -152,9 +185,9 @@ namespace Bardiche.Classes
         {
             string result = "";
 
-            foreach (string platform in platforms)
+            for (int i = 0; i < platforms.Length; i++)
             {
-                result = result + platform + " ";
+                result = result + platforms[i] + " ";
             }
 
             return result.Substring(0, result.Length-1);
@@ -173,6 +206,9 @@ namespace Bardiche.Classes
 
         public static class LevenshteinDistance
         {
+            /// <summary>
+            /// Compute the distance between two strings.
+            /// </summary>
             public static int Compute(string s, string t)
             {
                 int n = s.Length;
@@ -218,7 +254,7 @@ namespace Bardiche.Classes
                 return d[n, m];
             }
         }
-/*
+
         public static async void RefreshDirectories()
         {
             while (true)
@@ -226,13 +262,12 @@ namespace Bardiche.Classes
                 Console.WriteLine("Loading pictures...");
 
                 directories = new Dictionary<string, string[]>();
-                directories.Add("pmmm", Directory.EnumerateFiles(@"C:\directory", "*.*", SearchOption.AllDirectories)
-                            .Where(s => s.EndsWith(".jpg") || s.EndsWith(".png") || s.EndsWith(".gif")).ToArray());
+                //directories.Add("key", Directory.EnumerateFiles(@"C:\Directory", "*.*", SearchOption.AllDirectories)
+                //            .Where(s => s.EndsWith(".jpg") || s.EndsWith(".png") || s.EndsWith(".bmp") || s.EndsWith(".gif")).ToArray());
 
                 await Task.Delay(86400000);
             }
         }
-        */
 
         public static async void ReminderHandler(IDiscordClient client)
         {
@@ -244,12 +279,12 @@ namespace Bardiche.Classes
                 {
                     try
                     {
-                        reminders = File.ReadLines(Resources.reminders).ToList();
+                        reminders = File.ReadLines(Path.GetFullPath(Resources.reminders, Extensions.config_values.root_path)).ToList();
                     }
                     catch
                     {
                         f = 0;
-
+                        continue;
                     }
                 } while (f == 0);
                 StringBuilder sb = new StringBuilder();
@@ -295,7 +330,7 @@ namespace Bardiche.Classes
                 {
                     try
                     {
-                        File.WriteAllText(Resources.reminders, sb.ToString());
+                        File.WriteAllText(Path.GetFullPath(Resources.reminders, Extensions.config_values.root_path), sb.ToString());
                     }
                     catch
                     {
@@ -330,7 +365,8 @@ namespace Bardiche.Classes
 
         public static List<string> readRSS(string res)
         {
-            List<string> result = File.ReadLines(res).ToList();
+            List<string> result = new List<string>();
+            result = File.ReadLines(res).ToList();
             return result;
         }
 
@@ -360,7 +396,7 @@ namespace Bardiche.Classes
         public static bool UrltoJPEG (string url)
         {
             int counter = 0;
-            String path = Resources.temp;
+            string path = Path.GetFullPath(Resources.temp, Extensions.config_values.root_path);
 
             while (counter < 3)
             {
@@ -383,7 +419,12 @@ namespace Bardiche.Classes
                     counter++;
                 }
             }
-            return (counter != 3);
+            return (counter == 3) ? false : true;
+        }
+
+        public static async Task SendToNyaa(string msg, ISocketMessageChannel channel)
+        {
+            await channel.SendMessageAsync(msg).ConfigureAwait(false);
         }
 
     }

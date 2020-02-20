@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Bardiche.Properties;
 using System.IO;
+using Newtonsoft.Json;
+using System.Threading;
 using System.Net.Http;
 using System.Globalization;
+using Discord.WebSocket;
 using Discord;
 
 namespace Bardiche.Classes
@@ -15,30 +19,38 @@ namespace Bardiche.Classes
     {
         private List<string> known_guid = new List<string>();
         private static HttpClient client = new HttpClient();
-        //private string webhook = Extensions.config_values.webhook_url;
+        private string webhook = Extensions.config_values.webhook_url;
+        private static IDiscordClient discordClient;
 
         private static List<string> a_filters;
+        private static List<string> m_filters;
         private static List<string> a_sources;
+        private static List<string> m_sources;
         private static List<string> g_sources;
 
-        public RSSfeed()
+        public RSSfeed(IDiscordClient client)
         {
             Console.WriteLine("Starting up RSS feed...");
-            known_guid = File.ReadLines(Resources.rss_log).Reverse().Take(50).ToList();
+            discordClient = client;
+            known_guid = File.ReadLines(Path.GetFullPath(Resources.nyaa_log, Extensions.config_values.root_path)).Reverse().Take(30).ToList();
             RSSRefresh();
         }
 
-        public async Task ReadRSS(ITextChannel channel)
+        public async void ReadRSS()
         {
             while (true)
             {
-                foreach (string source in g_sources)
-                {
-                    await SendItems(source, false, new List<string>(), channel).ConfigureAwait(false);
-                }
                 foreach (string source in a_sources)
                 {
-                    await SendItems(source, true, a_filters, channel).ConfigureAwait(false);
+                    await SendHook(source, true, a_filters, true).ConfigureAwait(false);
+                }
+                foreach (string source in m_sources)
+                {
+                    await SendHook(source, true, m_filters, false).ConfigureAwait(false);
+                }
+                foreach (string source in g_sources)
+                {
+                    await SendHook(source, false, new List<string>(), false).ConfigureAwait(false);
                 }
                 await Task.Delay(77777);
             }
@@ -46,12 +58,14 @@ namespace Bardiche.Classes
 
         public static void RSSRefresh()
         {
-            a_filters = Extensions.readRSS(Resources.rss_filters);
-            a_sources = Extensions.readRSS(Resources.filtered_sources);
-            g_sources = Extensions.readRSS(Resources.general_sources);
+            a_filters = Extensions.readRSS(Path.GetFullPath(Resources.anime_filters, Extensions.config_values.root_path));
+            m_filters = Extensions.readRSS(Path.GetFullPath(Resources.manga_filters, Extensions.config_values.root_path));
+            a_sources = Extensions.readRSS(Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
+            m_sources = Extensions.readRSS(Path.GetFullPath(Resources.manga_sources, Extensions.config_values.root_path));
+            g_sources = Extensions.readRSS(Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
         }
 
-        private async Task SendItems(string url, bool check_filters, List<string> filters, ITextChannel channel)
+        private async Task SendHook(string url, bool check_filters, List<string> filters, bool sendToNyaaChannel)
         {
             try
             {
@@ -82,12 +96,10 @@ namespace Bardiche.Classes
                         break;
                     }
 
-                    string content = item.title + "\n" + item.link;
-
-                    /*var content = new
+                    var content = new
                     {
                         content = item.title + "\n" + item.link
-                    };*/
+                    };
 
                     if (check_filters)
                     {
@@ -117,36 +129,41 @@ namespace Bardiche.Classes
                         }
                     }
 
-                    /*StringContent request = new StringContent(JsonConvert.SerializeObject(content).ToString(),
-                                Encoding.UTF8, "application/json");*/
+                    StringContent request = new StringContent(JsonConvert.SerializeObject(content).ToString(),
+                                Encoding.UTF8, "application/json");
                     //string itemJson = JsonConvert.SerializeObject(msg);
 
                     try
                     {
-                        await channel.SendMessageAsync(content);
-                        /*HttpResponseMessage response;
+                        HttpResponseMessage response;
                         do
                         {
                             response = await client.PostAsync(webhook, request).ConfigureAwait(false);
                             Thread.Sleep(500);
-                        } while (response.StatusCode.ToString() == "Bad Request");*/
+                        } while (response.StatusCode.ToString() == "BadRequest");
+                        if (sendToNyaaChannel)
+                            await Extensions.SendToNyaa(content.content, (ISocketMessageChannel)(await discordClient.GetChannelAsync(Extensions.config_values.rss_channel_id)));
                         temp.Add(item.link);
                     }
-                    catch
+                    catch (Exception e)
                     {
-                        Console.WriteLine("An error occurred with the RSS service.\nPlease make sure your rss channel id field in config.json is set correctly.");
+                        Console.WriteLine(e.StackTrace);
                     }
                 }
                 temp.Reverse();
                 foreach (string s in temp)
                 {
-                    File.AppendAllText(Resources.rss_log, s + Environment.NewLine);
+                    File.AppendAllText(Path.GetFullPath(Resources.nyaa_log, Extensions.config_values.root_path), Environment.NewLine + s);
                 }
+                if (known_guid.Count > temp.Count)
+                    known_guid.RemoveRange(0, temp.Count);
                 known_guid.AddRange(temp);
+
+                return;
             }
-            catch (Exception e)
+            catch
             {
-                Console.WriteLine(e.StackTrace);
+                return;
             }
         }
 

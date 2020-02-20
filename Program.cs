@@ -10,9 +10,9 @@ using System.Reflection;
 using Bardiche.Properties;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json;
-using System.IO;
 using Bardiche.JSONModels;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace Bardiche
 {
@@ -31,6 +31,7 @@ namespace Bardiche
                 {
                     Console.Write(e.StackTrace);
                     f = 0;
+                    continue;
                 }
             } while (f == 0);
         }
@@ -39,13 +40,15 @@ namespace Bardiche
         private CommandService commands;
         private IServiceProvider services;
         private RSSfeed feed;
-        /*
-        AdministrationModule admod = new AdministrationModule();
+        private FGONews fgoFeed;
+
+        /*AdministrationModule admod = new AdministrationModule();
         SearchesModule smod = new SearchesModule();
         UtilityModule umod = new UtilityModule();
         RSSControlModule rssmod = new RSSControlModule();*/
 
         private static DateTime startTime = DateTime.Now;
+        private static string rootPath = @"C:\repos\Bardiche_v2.1";
 
         public async Task Start()
         {
@@ -59,44 +62,22 @@ namespace Bardiche
 
             await InstallCommandsAsync();
 
-            Extensions.config_values = await Task.Run(() => JsonConvert.DeserializeObject<ConfigModel>(File.ReadAllText(Resources.config)));
+            Extensions.config_values = await Task.Run(() => JsonConvert.DeserializeObject<ConfigModel>(File.ReadAllText(Path.GetFullPath(Resources.config, rootPath))));
+            Extensions.config_values.root_path = rootPath;
 
-            try
-            {
-                await client.LoginAsync(TokenType.Bot, Extensions.config_values.bot_token);
-                await client.StartAsync();
-            }
-            catch
-            {
-                Console.WriteLine("Invalid bot token. Please edit a valid one into the config.json file located under Resources.");
-                await Task.Delay(15000);
-                return;
-            }
+            await client.LoginAsync(TokenType.Bot, Extensions.config_values.bot_token);
+            await client.StartAsync();
 
-
-            feed = new RSSfeed();
-
+            feed = new RSSfeed(client);
+            fgoFeed = new FGONews();
             Extensions.setUpdate(startTime);
             //Extensions.RefreshDirectories();
             Extensions.ReminderHandler(client);
+         
+            feed.ReadRSS();
+            fgoFeed.readNews();
 
             Console.WriteLine("SET UP");
-
-            ITextChannel channel = null;
-            try {
-                int safetyCheck = int.MaxValue;
-                while (channel == null)
-                {
-                    channel = (ITextChannel)await ((IDiscordClient)client).GetChannelAsync(Extensions.config_values.rss_channel_id);
-                    safetyCheck--;
-                    if (safetyCheck == 0)
-                    {
-                        Console.WriteLine("Channel for RSS feed is taking too long to retrieve.\nPlease make sure your rss channel id field in config.json is set correctly.");
-                    }
-                }
-                Console.WriteLine("RSS service SET UP.");
-                await feed.ReadRSS(channel);
-            } catch { Console.WriteLine("Channel for RSS feed not configured. Cannot run RSS service.\nPlease set a channel in the config.json file."); }
 
             await Task.Delay(-1);
         }
@@ -125,7 +106,7 @@ namespace Bardiche
                     if (Extensions.UrltoJPEG(a.Url))
                     {
                         await message.DeleteAsync();
-                        await message.Channel.SendFileAsync(Resources.temp, $"``Sent by {message.Author.Username}``");
+                        await message.Channel.SendFileAsync(Path.GetFullPath(Resources.temp, Extensions.config_values.root_path), $"``Sent by {message.Author.Username}``");
                     }
                     else
                     {
@@ -144,7 +125,7 @@ namespace Bardiche
                     {
                         if (Extensions.UrltoJPEG(s))
                         {
-                            await message.Channel.SendFileAsync(Resources.temp);
+                            await message.Channel.SendFileAsync(Path.GetFullPath(Resources.temp, Extensions.config_values.root_path));
                         }
                         else
                         {
@@ -154,8 +135,13 @@ namespace Bardiche
                 }
             }
 
-            if (!(message.HasMentionPrefix(client.CurrentUser, ref argPos) || message.HasCharPrefix('!', ref argPos) || message.ToString().Substring(0, 8).Equals("Bardiche"))) return;
+            //if (!(message.HasMentionPrefix(client.CurrentUser, ref argPos) || message.HasCharPrefix('!', ref argPos) || (message.ToString().Substring(0, 4)).Equals("Sure") || (message.ToString().Substring(0, 8)).Equals("Bardiche"))) return;
+            if (!(message.HasMentionPrefix(client.CurrentUser, ref argPos) || message.HasCharPrefix('!', ref argPos)))
+            {
+                if ((message.ToString().Length < 4) || !((message.ToString().Substring(0, 4)).Equals("Sure") || ((message.ToString().Length > 7) && (message.ToString().Substring(0, 8)).Equals("Bardiche"))) || ((message.ToString().Length > 5) && (message.ToString().Substring(0, 6)).Equals("Surely"))) return;
+            }
             var context = new CommandContext(client, message);
+
             var result = await commands.ExecuteAsync(context, argPos, services);
 
             if (!result.IsSuccess)

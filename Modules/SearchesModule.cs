@@ -22,6 +22,7 @@ namespace Bardiche.Modules
 
             if (!(SearchHelper.ValidateQuery(input))) {
                 await ReplyAsync("``Please specify search parameters.``").ConfigureAwait(false);
+                return;
             }
             else {
                 string result;
@@ -48,7 +49,7 @@ namespace Bardiche.Modules
                     return;
                 }
 
-                await ReplyAsync(result).ConfigureAwait(false);
+                await ReplyAsync(result.ToString()).ConfigureAwait(false);
             }
         }
 
@@ -63,6 +64,7 @@ namespace Bardiche.Modules
             if (!(SearchHelper.ValidateQuery(input)))
             {
                 await ReplyAsync("``Please specify search parameters.``").ConfigureAwait(false);
+                return;
             }
             else
             {
@@ -91,7 +93,7 @@ namespace Bardiche.Modules
                     return;
                 }
 
-                await ReplyAsync(result).ConfigureAwait(false);
+                await ReplyAsync(result.ToString()).ConfigureAwait(false);
             }
         }
 
@@ -167,6 +169,7 @@ namespace Bardiche.Modules
             {
                 Console.WriteLine(e.StackTrace);
                 await ReplyAsync("``Failed to query jisho.org.``").ConfigureAwait(false);
+                return;
             }
         }
     }

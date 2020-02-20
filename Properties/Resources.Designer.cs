@@ -10,7 +10,6 @@
 
 namespace Bardiche.Properties {
     using System;
-    using System.Reflection;
     
     
     /// <summary>
@@ -20,7 +19,7 @@ namespace Bardiche.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -40,7 +39,7 @@ namespace Bardiche.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Bardiche.Properties.Resources", typeof(Resources).GetTypeInfo().Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Bardiche.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -62,7 +61,34 @@ namespace Bardiche.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Resources/config.json.
+        ///   Looks up a localized string similar to Resources\Files\anime_filters.txt.
+        /// </summary>
+        internal static string anime_filters {
+            get {
+                return ResourceManager.GetString("anime_filters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resources\Files\anime_sources.txt.
+        /// </summary>
+        internal static string anime_sources {
+            get {
+                return ResourceManager.GetString("anime_sources", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to https://i.imgur.com/XLdRgL0.jpg.
+        /// </summary>
+        internal static string chaldea_logo {
+            get {
+                return ResourceManager.GetString("chaldea_logo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resources\config.json.
         /// </summary>
         internal static string config {
             get {
@@ -71,16 +97,34 @@ namespace Bardiche.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Resources/Files/filtered_sources.txt.
+        ///   Looks up a localized string similar to Resources\Files\estelle.png.
         /// </summary>
-        internal static string filtered_sources {
+        internal static string estelle {
             get {
-                return ResourceManager.GetString("filtered_sources", resourceCulture);
+                return ResourceManager.GetString("estelle", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Resources/Files/general_sources.txt.
+        ///   Looks up a localized string similar to https://i.imgur.com/rC1LZA5.jpg.
+        /// </summary>
+        internal static string fgo_icon {
+            get {
+                return ResourceManager.GetString("fgo_icon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resources\Files\fgo_news.txt.
+        /// </summary>
+        internal static string fgo_news {
+            get {
+                return ResourceManager.GetString("fgo_news", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resources\Files\general_sources.txt.
         /// </summary>
         internal static string general_sources {
             get {
@@ -89,7 +133,34 @@ namespace Bardiche.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Resources/Files/reminders.txt.
+        ///   Looks up a localized string similar to Resources\Files\manga_filters.txt.
+        /// </summary>
+        internal static string manga_filters {
+            get {
+                return ResourceManager.GetString("manga_filters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resources\Files\manga_sources.txt.
+        /// </summary>
+        internal static string manga_sources {
+            get {
+                return ResourceManager.GetString("manga_sources", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resources\Files\nyaa_log.txt.
+        /// </summary>
+        internal static string nyaa_log {
+            get {
+                return ResourceManager.GetString("nyaa_log", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resources\Files\reminders.txt.
         /// </summary>
         internal static string reminders {
             get {
@@ -98,25 +169,7 @@ namespace Bardiche.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Resources/Files/rss_filters.txt.
-        /// </summary>
-        internal static string rss_filters {
-            get {
-                return ResourceManager.GetString("rss_filters", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Resources/Files/rss_log.txt.
-        /// </summary>
-        internal static string rss_log {
-            get {
-                return ResourceManager.GetString("rss_log", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Resources/Files/temp.jpg.
+        ///   Looks up a localized string similar to Resources\Pictures\temp.jpg.
         /// </summary>
         internal static string temp {
             get {

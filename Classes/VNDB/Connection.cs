@@ -25,6 +25,10 @@ namespace Bardiche.Classes
         private const string VNDBHost = "api.vndb.org";
         private const ushort VNDBPort = 19535; // always use TLS, because why not.
 
+        public Connection()
+        {
+        }
+
         public async Task Open()
         {
             this.tcpClient = new TcpClient();
@@ -105,6 +109,7 @@ namespace Bardiche.Classes
                     break;
                 }
 
+                // This should probably never happen, but just in case...
                 if (totalRead == responseBuffer.Length)
                 {
                     byte[] biggerBadderBuffer = new byte[responseBuffer.Length * 2];

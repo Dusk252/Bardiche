@@ -3,6 +3,7 @@ using Bardiche.Properties;
 using Discord.Commands;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,7 +20,25 @@ namespace Bardiche.Modules
             string[] filters = items[0].TrimEnd(' ').Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
             List<string> existing = new List<string>();
 
-            string resource = Resources.rss_filters;
+            string mode;
+            string resource;
+            if (filters[0].Substring(0, 2).Equals("a "))
+            {
+                resource = Path.GetFullPath(Resources.anime_filters, Extensions.config_values.root_path);
+                mode = filters[0].Substring(0, 1);
+                filters[0] = filters[0].Substring(2);
+            }
+            else if (filters[0].Substring(0, 2).Equals("m "))
+            {
+                resource = Path.GetFullPath(Resources.manga_filters, Extensions.config_values.root_path);
+                mode = filters[0].Substring(0, 1);
+                filters[0] = filters[0].Substring(2);
+            }
+            else
+            {
+                resource = Path.GetFullPath(Resources.anime_filters, Extensions.config_values.root_path);
+                mode = "a";
+            }
 
             List<string> current = Extensions.readRSS(resource);
             foreach (string unparsed in filters)
@@ -55,16 +74,27 @@ namespace Bardiche.Modules
             }
             if (items.Length == 2 && items[1].TrimStart(' ').Equals("s"))
             {
-                await RSSShow();
+                await RSSShow(mode);
             }
         }
 
         [Command("rssshow")]
         [Summary("Shows list of shows in the rss filter.")]
-        public async Task RSSShow()
+        public async Task RSSShow([Remainder] string query = "a")
         {
             List<string> current;
-            current = Extensions.readRSS(Resources.rss_filters);
+            if (query.Equals("a"))
+            {
+                current = Extensions.readRSS(Path.GetFullPath(Resources.anime_filters, Extensions.config_values.root_path));
+            }
+            else if (query.Equals("m"))
+            {
+                current = Extensions.readRSS(Path.GetFullPath(Resources.manga_filters, Extensions.config_values.root_path));
+            }
+            else
+            {
+                current = Extensions.readRSS(Path.GetFullPath(Resources.anime_filters, Extensions.config_values.root_path));
+            }
             StringBuilder sb = new StringBuilder();
             if (current.Count == 0)
             {
@@ -93,7 +123,25 @@ namespace Bardiche.Modules
             List<string> nonexisting = new List<string>();
             List<string> temp = new List<string>();
 
-            string resource = Resources.rss_filters;
+            string mode;
+            string resource;
+            if (filters[0].Substring(0, 2).Equals("a "))
+            {
+                resource = Path.GetFullPath(Resources.anime_filters, Extensions.config_values.root_path);
+                mode = filters[0].Substring(0, 1);
+                filters[0] = filters[0].Substring(2);
+            }
+            else if (filters[0].Substring(0, 2).Equals("m "))
+            {
+                resource = Path.GetFullPath(Resources.manga_filters, Extensions.config_values.root_path);
+                mode = filters[0].Substring(0, 1);
+                filters[0] = filters[0].Substring(2);
+            }
+            else
+            {
+                resource = Path.GetFullPath(Resources.anime_filters, Extensions.config_values.root_path);
+                mode = "a";
+            }
 
             List<string> current = Extensions.readRSS(resource);
             foreach (string unparsed in filters)
@@ -141,7 +189,7 @@ namespace Bardiche.Modules
             }
             if (items.Length == 2 && items[1].TrimStart(' ').Equals("s"))
             {
-                await RSSShow();
+                await RSSShow(mode);
             }
         }
 
@@ -149,39 +197,63 @@ namespace Bardiche.Modules
         [Summary("Removes all rss filters.")]
         public async Task RSSRemoveall([Remainder] string query = "a")
         {
-            string resource = Resources.rss_filters;
-
+            string resource;
+            if (query.Equals("a"))
+            {
+                resource = Path.GetFullPath(Resources.anime_filters, Extensions.config_values.root_path);
+            }
+            else if (query.Equals("m"))
+            {
+                resource = Path.GetFullPath(Resources.manga_filters, Extensions.config_values.root_path);
+            }
+            else
+            {
+                resource = Path.GetFullPath(Resources.anime_filters, Extensions.config_values.root_path);
+            }
             List<string> temp = new List<string>();
             Extensions.writeRSS(temp, resource);
             RSSfeed.RSSRefresh();
             await ReplyAsync("``The RSS filter is now empty.``").ConfigureAwait(false);
         }
 
-        [Command("rssaddsource")]
-        [Summary("Adds a new rss source.")]
-        public async Task RSSAddTorrentSource([Remainder] string query)
+        [Command("rssaddgeneralsource")]
+        [Summary("Adds a new unfiltered source.")]
+        public async Task RSSAddGeneralSource([Remainder] string query)
         {
             string input = query.TrimStart(' ').TrimEnd(' ');
-            string resource = Resources.rss_filters;
-            if (input.Contains(" "))
-            {
-                if (input.Substring(0, 2).Equals("a "))
-                {
-                    resource = Resources.filtered_sources;
-                }
-                else if (input.Substring(0, 2).Equals("g "))
-                {
-                    resource = Resources.general_sources;
-                }
-                input = input.Substring(2);
-            }
-            if (!input.Contains(" "))
-            {
-                List<string> current = Extensions.readRSS(resource);
+            if (!input.Contains(" ")) {
+                List<string> current = Extensions.readRSS(Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
                 if (!current.Contains(input))
                 {
                     current.Add(input);
-                    Extensions.writeRSS(current, resource);
+                    Extensions.writeRSS(current, Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
+                    RSSfeed.RSSRefresh();
+                    await ReplyAsync("``A new RSS source has been added.``").ConfigureAwait(false);
+                }
+                else
+                {
+                    await ReplyAsync("``The source you tried to add is already registered.``").ConfigureAwait(false);
+                }
+            }
+            else
+            {
+                await ReplyAsync("``The source you tried to add is in an invalid format. (Make sure it has no spaces.)``").ConfigureAwait(false);
+            }
+            
+        }
+
+        [Command("rssaddsource")]
+        [Summary("Adds a new rss source (for torrents).")]
+        public async Task RSSAddTorrentSource([Remainder] string query)
+        {
+            string input = query.TrimStart(' ').TrimEnd(' ');
+            if (!input.Contains(" "))
+            {
+                List<string> current = Extensions.readRSS(Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
+                if (!current.Contains(input))
+                {
+                    current.Add(input);
+                    Extensions.writeRSS(current, Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
                     RSSfeed.RSSRefresh();
                     await ReplyAsync("``A new RSS source has been added.``").ConfigureAwait(false);
                 }
@@ -204,12 +276,14 @@ namespace Bardiche.Modules
             string input = query.TrimStart(' ').TrimEnd(' ');
             if (!input.Contains(" "))
             {
-                List<string> general = Extensions.readRSS(Resources.general_sources);
-                List<string> torrents = Extensions.readRSS(Resources.filtered_sources);
-                if (general.Remove(input)||torrents.Remove(input))
+                List<string> general = Extensions.readRSS(Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
+                List<string> manga = Extensions.readRSS(Path.GetFullPath(Resources.manga_sources, Extensions.config_values.root_path));
+                List<string> torrents = Extensions.readRSS(Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
+                if (manga.Remove(input)||torrents.Remove(input)||general.Remove(input))
                 {
-                    Extensions.writeRSS(general, Resources.general_sources);
-                    Extensions.writeRSS(torrents, Resources.filtered_sources);
+                    Extensions.writeRSS(general, Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
+                    Extensions.writeRSS(manga, Path.GetFullPath(Resources.manga_sources, Extensions.config_values.root_path));
+                    Extensions.writeRSS(torrents, Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
                     RSSfeed.RSSRefresh();
                     await ReplyAsync("``The specified RSS source has been removed.``").ConfigureAwait(false);
                 }
@@ -230,8 +304,9 @@ namespace Bardiche.Modules
         public async Task RSSRemoveAllSources()
         {
             List<string> temp = new List<string>();
-            Extensions.writeRSS(temp, Resources.general_sources);
-            Extensions.writeRSS(temp, Resources.filtered_sources);
+            Extensions.writeRSS(temp, Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
+            Extensions.writeRSS(temp, Path.GetFullPath(Resources.manga_sources, Extensions.config_values.root_path));
+            Extensions.writeRSS(temp, Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
             RSSfeed.RSSRefresh();
             await ReplyAsync("``All the RSS sources were removed.``").ConfigureAwait(false);
         }
@@ -240,8 +315,10 @@ namespace Bardiche.Modules
         [Summary("Shows list of shows in the rss filter.")]
         public async Task RSSShowSources()
         {
-            List<string> current = Extensions.readRSS(Resources.general_sources);
-            current.AddRange(Extensions.readRSS(Resources.filtered_sources));
+            List<string> current = Extensions.readRSS(Path.GetFullPath(Resources.manga_sources, Extensions.config_values.root_path));
+            current.AddRange(Extensions.readRSS(Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path)));
+            current.AddRange(Extensions.readRSS(Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path)));
+
             StringBuilder sb = new StringBuilder();
             if (current.Count == 0)
             {

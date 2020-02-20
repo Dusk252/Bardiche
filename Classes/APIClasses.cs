@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 
 #pragma warning disable 1591
 
@@ -188,7 +189,7 @@ namespace Bardiche.Classes
         /// <summary>
         /// Convert ListedSearchedProducer to ListedProducer.
         /// </summary>
-        // <param name="searchedProducer">Producer to be converted</param>
+        /// <param name="searchedProducer">Producer to be converted</param>
         /// <returns>ListedProducer with name and ID of ListedSearchedProducer</returns>
 
         /// <summary>Returns a string that represents the current object.</summary>

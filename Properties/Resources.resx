@@ -117,25 +117,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="config" xml:space="preserve">
-    <value>Resources/config.json</value>
+  <data name="anime_filters" xml:space="preserve">
+    <value>Resources\Files\anime_filters.txt</value>
   </data>
-  <data name="filtered_sources" xml:space="preserve">
-    <value>Resources/Files/filtered_sources.txt</value>
+  <data name="anime_sources" xml:space="preserve">
+    <value>Resources\Files\anime_sources.txt</value>
+  </data>
+  <data name="chaldea_logo" xml:space="preserve">
+    <value>https://i.imgur.com/XLdRgL0.jpg</value>
+  </data>
+  <data name="config" xml:space="preserve">
+    <value>Resources\config.json</value>
+  </data>
+  <data name="estelle" xml:space="preserve">
+    <value>Resources\Files\estelle.png</value>
+  </data>
+  <data name="fgo_icon" xml:space="preserve">
+    <value>https://i.imgur.com/rC1LZA5.jpg</value>
+  </data>
+  <data name="fgo_news" xml:space="preserve">
+    <value>Resources\Files\fgo_news.txt</value>
   </data>
   <data name="general_sources" xml:space="preserve">
-    <value>Resources/Files/general_sources.txt</value>
+    <value>Resources\Files\general_sources.txt</value>
+  </data>
+  <data name="manga_filters" xml:space="preserve">
+    <value>Resources\Files\manga_filters.txt</value>
+  </data>
+  <data name="manga_sources" xml:space="preserve">
+    <value>Resources\Files\manga_sources.txt</value>
+  </data>
+  <data name="nyaa_log" xml:space="preserve">
+    <value>Resources\Files\nyaa_log.txt</value>
   </data>
   <data name="reminders" xml:space="preserve">
-    <value>Resources/Files/reminders.txt</value>
-  </data>
-  <data name="rss_filters" xml:space="preserve">
-    <value>Resources/Files/rss_filters.txt</value>
-  </data>
-  <data name="rss_log" xml:space="preserve">
-    <value>Resources/Files/rss_log.txt</value>
+    <value>Resources\Files\reminders.txt</value>
   </data>
   <data name="temp" xml:space="preserve">
-    <value>Resources/Files/temp.jpg</value>
+    <value>Resources\Pictures\temp.jpg</value>
   </data>
 </root>

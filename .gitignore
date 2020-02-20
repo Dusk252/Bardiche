@@ -1,2 +1,4 @@
-"bin/" 
-"Resources/" 
+bin/
+obj/
+Resources/
+.vs/
