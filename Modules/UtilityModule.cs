@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Bardiche.Classes;
 using System;
 using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 using Bardiche.Properties;
 using System.Globalization;
 
@@ -29,7 +31,7 @@ namespace Bardiche.Modules
             sb.AppendLine("\n```Utility Commands```");
             sb.AppendLine("`!rng <n1> [<n2>]`     `Generates a number from 1 to n1 if no n2 specified or from n1 to n2 if specified.`");
             sb.AppendLine("`(!choose | !c) <op1>[<separator><op2>]...`     `Chooses an option from the list provided. Comma and space are valid separators.`");
-            sb.AppendLine("`!listshuffle | !ls <entry1>[<separator><entry2>]...`     `Returns an input list shuffled. New line and comma are valid separators.`");
+            sb.AppendLine("`!shuffle | !s <entry1>[<separator><entry2>]...`     `Returns an input list shuffled. New line and comma are valid separators.`");
             sb.AppendLine("`(!reminder | !rm) <msg>$<datetime>`     `Repeats the input message on the specified date and time. Supported formats are yyyy-MM-dd, yyyy-MM-dd hh:mm, yyyy/MM/dd, yyyy/MM/dd hh:mm.`");
             sb.AppendLine("`(!alert) <msg>$<time>`     `Repeats the input message after the specified time has elapsed. Valid expressions for <time> are: <min>m, <hours>h, <hours>h<min>m`");
             string utility = sb.ToString();
@@ -79,7 +81,8 @@ namespace Bardiche.Modules
             string manage = sb.ToString();
 
             input = input.Trim();
-            switch (input) {
+            switch (input)
+            {
                 case "rss":
                     await ReplyAsync(rss).ConfigureAwait(false);
                     break;
@@ -211,6 +214,23 @@ namespace Bardiche.Modules
             await ReplyAsync("``" + result + "``").ConfigureAwait(false);
         }
 
+        [Command("shuffle")]
+        [Alias("s")]
+        [Summary("Returns an input list shuffled.")]
+        public async Task ListShuffle([Remainder] string input)
+        {
+            string[] separators = { "\n", ",", ", " };
+            string[] items = input.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+
+            List<string> shuffledList = Extensions.Shuffle(items.ToList()) as List<string>;
+            string result = shuffledList.Aggregate("", (acc, item) =>
+            {
+                return acc + item + '\n';
+            });
+
+            await ReplyAsync("``" + result + "``").ConfigureAwait(false);
+        }
+
         [Command("reminder")]
         [Alias("rm")]
         [Summary("Reminds user after specified time.")]
@@ -231,7 +251,7 @@ namespace Bardiche.Modules
                     {
                         DateTime rmtime;
                         TimeSpan diff = Extensions.config_values.time_zones.ContainsKey(Context.User.Id) ? Extensions.config_values.time_zones[Context.User.Id] : TimeSpan.Zero;
-                        
+
                         if (!DateTime.TryParseExact(temp[1], dateTimeFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out rmtime))
                             await ReplyAsync("``" + "Invalid DateTime format." + "``").ConfigureAwait(false);
                         else
