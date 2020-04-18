@@ -2,3 +2,6 @@ bin/
 obj/
 Resources/
 .vs/
+.vscode/
+.stignore
+Bardiche_v2.1.sln
