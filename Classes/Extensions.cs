@@ -301,15 +301,10 @@ namespace Bardiche.Classes
                     {
                         if (dif <= check)
                         {
-                            while (channel == null)
-                            {
-                                channel = (ITextChannel)await client.GetChannelAsync(ulong.Parse(temp[3]));
-                            }
+
+                            channel = (ITextChannel)await client.GetChannelAsync(ulong.Parse(temp[3]));
                             ulong uid = ulong.Parse(temp[2]);
-                            while (u == null)
-                            {
-                                u = await channel.GetUserAsync(uid);
-                            }
+                            u = await channel.GetUserAsync(uid);
                             await channel.SendMessageAsync(u.Mention + " " + temp[1]);
                             TimeSpan check2 = new TimeSpan(0, 0, 0);
                             if (dif < check2)

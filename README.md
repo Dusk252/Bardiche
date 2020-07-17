@@ -7,7 +7,7 @@ A Discord bot written using the Discord.NET library. Primary functions are queri
 Only self-hosting is supported. To do so, feel free to copile the project yourself or use the [release version](https://github.com/Dusk252/Bardiche_v2.1/tree/master/bin/Release/Bardiche2.1_release).
 Next, edit in the needed information into the config.json file under the Resources folder.
 The needed information is as follows:
-* Bot token - Get it by creating the bot application to add to your server [here](https://discordapp.com/developers/applications/me).
+* Bot token - Get it by creating the bot application to add to your server [here](https://discord.com/developers/applications/me).
 * RSS channel id - Channel where the rss feed information will be posted. Required only if you want to use the rss module.
 * Admin id - List for admin ids. Used for the two commands that require the user to be an admin: prune everyone's messages and prune the bot messages.
 * Bot id - Required for pruning the bot messages.

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
 using Discord;
+using System.Collections;
 
 namespace Bardiche.Modules
 {
@@ -16,9 +17,10 @@ namespace Bardiche.Modules
             if (!Extensions.config_values.admin_ids.Contains(Context.User.Id))
                 return;
             //var user = await Context.Guild.GetCurrentUserAsync().ConfigureAwait(false);
-            var enumerable = (await Context.Channel.GetMessagesAsync().Flatten()).AsEnumerable();
-            enumerable = enumerable.Where(x => (Extensions.config_values.bot_ids.Contains(x.Author.Id)));
-            await Context.Channel.DeleteMessagesAsync(enumerable).ConfigureAwait(false);
+            IEnumerable messages = await Context.Channel.GetMessagesAsync().FlattenAsync();
+            foreach (IMessage m in messages)
+                if (Extensions.config_values.bot_ids.Contains(m.Author.Id))
+                        await Context.Channel.DeleteMessageAsync(m).ConfigureAwait(false);
             Context.Message.DeleteAfter(3);
         }
 
@@ -31,8 +33,9 @@ namespace Bardiche.Modules
                 return;
             await Context.Message.DeleteAsync().ConfigureAwait(false);
             int limit = (count < 100) ? count : 100;
-            var enumerable = (await Context.Channel.GetMessagesAsync(limit: limit).Flatten().ConfigureAwait(false));
-            await Context.Channel.DeleteMessagesAsync(enumerable).ConfigureAwait(false);
+            IEnumerable messages = await Context.Channel.GetMessagesAsync(limit).FlattenAsync();
+            foreach (IMessage m in messages)
+                await Context.Channel.DeleteMessageAsync(m).ConfigureAwait(false);
         }
 
         [Command("del")]
@@ -46,9 +49,17 @@ namespace Bardiche.Modules
             if (user.Id == Context.User.Id)
                 count += 1;
 
-            int limit = (count < 100) ? count : 100;
-            var enumerable = (await Context.Channel.GetMessagesAsync(limit: limit).Flatten()).Where(m => m.Author == user);
-            await Context.Channel.DeleteMessagesAsync(enumerable).ConfigureAwait(false);
+            IEnumerable messages = await Context.Channel.GetMessagesAsync().FlattenAsync();
+            foreach (IMessage m in messages)
+            {
+                if (count == 0)
+                    break;
+                if (m.Author == user)
+                {
+                    await Context.Channel.DeleteMessageAsync(m).ConfigureAwait(false);
+                    count--;
+                }
+            }
 
             Context.Message.DeleteAfter(3);
         }

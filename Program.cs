@@ -48,7 +48,7 @@ namespace Bardiche
         RSSControlModule rssmod = new RSSControlModule();*/
 
         private static DateTime startTime = DateTime.Now;
-        private static string rootPath = @"C:\repos\Bardiche_v2.1";
+        private static string rootPath = @"D:\repos\Bardiche_v2.1";
 
         public async Task Start()
         {
@@ -87,7 +87,7 @@ namespace Bardiche
             // Hook the MessageReceived Event into our Command Handler
             client.MessageReceived += HandleCommandAsync;
             // Discover all of the commands in this assembly and load them.
-            await commands.AddModulesAsync(Assembly.GetEntryAssembly());
+            await commands.AddModulesAsync(Assembly.GetEntryAssembly(), services);
         }
 
         private async Task HandleCommandAsync(SocketMessage parameterMessage)
