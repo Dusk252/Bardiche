@@ -64,17 +64,24 @@ namespace Bardiche.Modules
                     }
                     await ReplyAsync("``" + sb.ToString().Substring(2) + (existing.Count == 1 ? " is " : " are ") + "already registered.``").ConfigureAwait(false);
                 }
-                Extensions.writeLinesToFile(current, resource);
-                RSSfeed.RSSRefresh();
                 if (mode == "a")
                 {
-                    if (!RSSTorrentUtility.qBitTorrentAddFilter(filters))
-                        await ReplyAsync("``There was an issue updating the qBitTorrent autodownload config.``").ConfigureAwait(false);
-                    else
+                    if (RSSTorrentUtility.qBitTorrentAddFilter(filters))
+                    {
+                        Extensions.writeLinesToFile(current, resource);
+                        RSSfeed.RSSRefresh();
                         await ReplyAsync("``The RSS filter has been updated.``").ConfigureAwait(false);
+                        RSSTorrentUtility.qBittorrentRestart();
+                    }
+                    else
+                        await ReplyAsync("``There was an issue updating the qBitTorrent autodownload config.``").ConfigureAwait(false);
                 }
                 else
+                {
+                    Extensions.writeLinesToFile(current, resource);
+                    RSSfeed.RSSRefresh();
                     await ReplyAsync("``The RSS filter has been updated.``").ConfigureAwait(false);
+                }
             }
             else
             {
@@ -188,17 +195,24 @@ namespace Bardiche.Modules
                     }
                     await ReplyAsync("``" + sb.ToString().Substring(2) + (nonexisting.Count == 1 ? " isn't " : " aren't ") + "registered.``").ConfigureAwait(false);
                 }
-                Extensions.writeLinesToFile(current, resource);
-                RSSfeed.RSSRefresh();
                 if (mode == "a")
                 {
-                    if (!RSSTorrentUtility.qBitTorrentRemoveFilter(filters))
-                        await ReplyAsync("``There was an issue updating the qBitTorrent autodownload config.``").ConfigureAwait(false);
-                    else
+                    if (RSSTorrentUtility.qBitTorrentRemoveFilter(filters))
+                    {
+                        Extensions.writeLinesToFile(current, resource);
+                        RSSfeed.RSSRefresh();
                         await ReplyAsync("``The RSS filter has been updated.``").ConfigureAwait(false);
+                        RSSTorrentUtility.qBittorrentRestart();
+                    }
+                    else
+                        await ReplyAsync("``There was an issue updating the qBitTorrent autodownload config.``").ConfigureAwait(false);
                 }
                 else
+                {
+                    Extensions.writeLinesToFile(current, resource);
+                    RSSfeed.RSSRefresh();
                     await ReplyAsync("``The RSS filter has been updated.``").ConfigureAwait(false);
+                }
             }
             else
             {
@@ -220,7 +234,7 @@ namespace Bardiche.Modules
                 resource = Path.GetFullPath(Resources.anime_filters, Extensions.config_values.root_path);
                 List<string> filters = Extensions.readFile(resource);
                 if (!RSSTorrentUtility.qBitTorrentRemoveFilter(filters.ToArray()))
-                    await ReplyAsync("``There was an issue updating the qBitTorrent autodownload config.``").ConfigureAwait(false);
+                    await ReplyAsync("``There was an issue updating the qBitTorrent autodownload config. Please check it manually.``").ConfigureAwait(false);
             }
             else if (query.Equals("m"))
             {
@@ -235,6 +249,7 @@ namespace Bardiche.Modules
             Extensions.writeLinesToFile(temp, resource);
             RSSfeed.RSSRefresh();
             await ReplyAsync("``The RSS filter is now empty.``").ConfigureAwait(false);
+            RSSTorrentUtility.qBittorrentRestart();
         }
 
         [Command("rssaddgeneralsource")]
@@ -242,7 +257,8 @@ namespace Bardiche.Modules
         public async Task RSSAddGeneralSource([Remainder] string query)
         {
             string input = query.TrimStart(' ').TrimEnd(' ');
-            if (!input.Contains(" ")) {
+            if (!input.Contains(" "))
+            {
                 List<string> current = Extensions.readFile(Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
                 if (!current.Contains(input))
                 {
@@ -260,7 +276,7 @@ namespace Bardiche.Modules
             {
                 await ReplyAsync("``The source you tried to add is in an invalid format. (Make sure it has no spaces.)``").ConfigureAwait(false);
             }
-            
+
         }
 
         [Command("rssaddsource")]
@@ -274,11 +290,15 @@ namespace Bardiche.Modules
                 if (!current.Contains(input))
                 {
                     current.Add(input);
-                    Extensions.writeLinesToFile(current, Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
-                    if (!RSSTorrentUtility.qBitTorrentAddSource(input))
+                    if (RSSTorrentUtility.qBitTorrentAddSource(input))
+                    {
+                        Extensions.writeLinesToFile(current, Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
+                        RSSfeed.RSSRefresh();
+                        await ReplyAsync("``A new RSS source has been added.``").ConfigureAwait(false);
+                        RSSTorrentUtility.qBittorrentRestart();
+                    }
+                    else
                         await ReplyAsync("``There was an issue updating the qBitTorrent autodownload config.``").ConfigureAwait(false);
-                    RSSfeed.RSSRefresh();
-                    await ReplyAsync("``A new RSS source has been added.``").ConfigureAwait(false);
                 }
                 else
                 {
@@ -302,14 +322,18 @@ namespace Bardiche.Modules
                 List<string> general = Extensions.readFile(Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
                 List<string> manga = Extensions.readFile(Path.GetFullPath(Resources.manga_sources, Extensions.config_values.root_path));
                 List<string> torrents = Extensions.readFile(Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
-                if (manga.Remove(input)||torrents.Remove(input)||general.Remove(input))
+                if (manga.Remove(input) || torrents.Remove(input) || general.Remove(input))
                 {
                     Extensions.writeLinesToFile(general, Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
                     Extensions.writeLinesToFile(manga, Path.GetFullPath(Resources.manga_sources, Extensions.config_values.root_path));
-                    Extensions.writeLinesToFile(torrents, Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
-                    RSSfeed.RSSRefresh();
-                    await ReplyAsync("``The specified RSS source has been removed.``").ConfigureAwait(false);
-                    if (!RSSTorrentUtility.qBitTorrentRemoveSource(input))
+                    if (RSSTorrentUtility.qBitTorrentRemoveSource(input))
+                    {
+                        Extensions.writeLinesToFile(torrents, Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
+                        RSSfeed.RSSRefresh();
+                        await ReplyAsync("``The specified RSS source has been removed.``").ConfigureAwait(false);
+                        RSSTorrentUtility.qBittorrentRestart();
+                    }
+                    else
                         await ReplyAsync("``There was an issue updating the qBitTorrent autodownload config.``").ConfigureAwait(false);
                 }
                 else
@@ -333,8 +357,8 @@ namespace Bardiche.Modules
             {
                 if (!RSSTorrentUtility.qBitTorrentRemoveSource(source))
                 {
-                    await ReplyAsync("``There was an issue updating the qBitTorrent autodownload config.``").ConfigureAwait(false);
-                    break;
+                    await ReplyAsync("``There was an issue updating the qBitTorrent autodownload config. Please check it manually.``").ConfigureAwait(false);
+                    return;
                 }
             }
 
@@ -345,6 +369,7 @@ namespace Bardiche.Modules
             RSSfeed.RSSRefresh();
 
             await ReplyAsync("``All the RSS sources were removed.``").ConfigureAwait(false);
+            RSSTorrentUtility.qBittorrentRestart();
         }
 
         [Command("rssshowsources")]
