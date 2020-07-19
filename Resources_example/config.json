@@ -1,8 +1,11 @@
 {
   "bot_token": "",
-  "rss_channel_id": 0,
+  //"rss_channel_id": 0,
   "bot_ids": [],
   "admin_ids": [],
   "time_zones": {},
-  "webhook_url": ""
+  "webhook_url": "",
+  "qBittorrent_rss_sources": "",
+  "qBittorrent_rss_filters": "",
+  "qBittorrent_save_path": ""
 }

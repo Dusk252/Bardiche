@@ -358,14 +358,14 @@ namespace Bardiche.Classes
             }
         }
 
-        public static List<string> readRSS(string res)
+        public static List<string> readFile(string res)
         {
             List<string> result = new List<string>();
             result = File.ReadLines(res).ToList();
             return result;
         }
 
-        public static void writeRSS(List<string> input, string res)
+        public static void writeLinesToFile(List<string> input, string res)
         {
             StringBuilder sb = new StringBuilder();
             foreach(var s in input)
@@ -417,7 +417,7 @@ namespace Bardiche.Classes
             return (counter == 3) ? false : true;
         }
 
-        public static async Task SendToNyaa(string msg, ISocketMessageChannel channel)
+        public static async Task SendToChannel(string msg, ISocketMessageChannel channel)
         {
             await channel.SendMessageAsync(msg).ConfigureAwait(false);
         }

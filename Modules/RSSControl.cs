@@ -40,7 +40,7 @@ namespace Bardiche.Modules
                 mode = "a";
             }
 
-            List<string> current = Extensions.readRSS(resource);
+            List<string> current = Extensions.readFile(resource);
             foreach (string unparsed in filters)
             {
                 string input = unparsed.TrimStart(' ').ToLower();
@@ -64,14 +64,23 @@ namespace Bardiche.Modules
                     }
                     await ReplyAsync("``" + sb.ToString().Substring(2) + (existing.Count == 1 ? " is " : " are ") + "already registered.``").ConfigureAwait(false);
                 }
-                Extensions.writeRSS(current, resource);
+                Extensions.writeLinesToFile(current, resource);
                 RSSfeed.RSSRefresh();
-                await ReplyAsync("``The RSS filter has been updated.``").ConfigureAwait(false);
+                if (mode == "a")
+                {
+                    if (!RSSTorrentUtility.qBitTorrentAddFilter(filters))
+                        await ReplyAsync("``There was an issue updating the qBitTorrent autodownload config.``").ConfigureAwait(false);
+                    else
+                        await ReplyAsync("``The RSS filter has been updated.``").ConfigureAwait(false);
+                }
+                else
+                    await ReplyAsync("``The RSS filter has been updated.``").ConfigureAwait(false);
             }
             else
             {
                 await ReplyAsync("``All the filters you tried to add already exist.``").ConfigureAwait(false);
             }
+
             if (items.Length == 2 && items[1].TrimStart(' ').Equals("s"))
             {
                 await RSSShow(mode);
@@ -85,15 +94,15 @@ namespace Bardiche.Modules
             List<string> current;
             if (query.Equals("a"))
             {
-                current = Extensions.readRSS(Path.GetFullPath(Resources.anime_filters, Extensions.config_values.root_path));
+                current = Extensions.readFile(Path.GetFullPath(Resources.anime_filters, Extensions.config_values.root_path));
             }
             else if (query.Equals("m"))
             {
-                current = Extensions.readRSS(Path.GetFullPath(Resources.manga_filters, Extensions.config_values.root_path));
+                current = Extensions.readFile(Path.GetFullPath(Resources.manga_filters, Extensions.config_values.root_path));
             }
             else
             {
-                current = Extensions.readRSS(Path.GetFullPath(Resources.anime_filters, Extensions.config_values.root_path));
+                current = Extensions.readFile(Path.GetFullPath(Resources.anime_filters, Extensions.config_values.root_path));
             }
             StringBuilder sb = new StringBuilder();
             if (current.Count == 0)
@@ -143,7 +152,7 @@ namespace Bardiche.Modules
                 mode = "a";
             }
 
-            List<string> current = Extensions.readRSS(resource);
+            List<string> current = Extensions.readFile(resource);
             foreach (string unparsed in filters)
             {
                 int flag = 0;
@@ -179,13 +188,21 @@ namespace Bardiche.Modules
                     }
                     await ReplyAsync("``" + sb.ToString().Substring(2) + (nonexisting.Count == 1 ? " isn't " : " aren't ") + "registered.``").ConfigureAwait(false);
                 }
-                Extensions.writeRSS(current, resource);
+                Extensions.writeLinesToFile(current, resource);
                 RSSfeed.RSSRefresh();
-                await ReplyAsync("``The RSS filter has been updated.``").ConfigureAwait(false);
+                if (mode == "a")
+                {
+                    if (!RSSTorrentUtility.qBitTorrentRemoveFilter(filters))
+                        await ReplyAsync("``There was an issue updating the qBitTorrent autodownload config.``").ConfigureAwait(false);
+                    else
+                        await ReplyAsync("``The RSS filter has been updated.``").ConfigureAwait(false);
+                }
+                else
+                    await ReplyAsync("``The RSS filter has been updated.``").ConfigureAwait(false);
             }
             else
             {
-                await ReplyAsync("``None of the filters you tried to add is registered.``").ConfigureAwait(false);
+                await ReplyAsync("``None of the filters you tried to remove is registered.``").ConfigureAwait(false);
             }
             if (items.Length == 2 && items[1].TrimStart(' ').Equals("s"))
             {
@@ -201,6 +218,9 @@ namespace Bardiche.Modules
             if (query.Equals("a"))
             {
                 resource = Path.GetFullPath(Resources.anime_filters, Extensions.config_values.root_path);
+                List<string> filters = Extensions.readFile(resource);
+                if (!RSSTorrentUtility.qBitTorrentRemoveFilter(filters.ToArray()))
+                    await ReplyAsync("``There was an issue updating the qBitTorrent autodownload config.``").ConfigureAwait(false);
             }
             else if (query.Equals("m"))
             {
@@ -210,8 +230,9 @@ namespace Bardiche.Modules
             {
                 resource = Path.GetFullPath(Resources.anime_filters, Extensions.config_values.root_path);
             }
+
             List<string> temp = new List<string>();
-            Extensions.writeRSS(temp, resource);
+            Extensions.writeLinesToFile(temp, resource);
             RSSfeed.RSSRefresh();
             await ReplyAsync("``The RSS filter is now empty.``").ConfigureAwait(false);
         }
@@ -222,11 +243,11 @@ namespace Bardiche.Modules
         {
             string input = query.TrimStart(' ').TrimEnd(' ');
             if (!input.Contains(" ")) {
-                List<string> current = Extensions.readRSS(Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
+                List<string> current = Extensions.readFile(Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
                 if (!current.Contains(input))
                 {
                     current.Add(input);
-                    Extensions.writeRSS(current, Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
+                    Extensions.writeLinesToFile(current, Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
                     RSSfeed.RSSRefresh();
                     await ReplyAsync("``A new RSS source has been added.``").ConfigureAwait(false);
                 }
@@ -249,11 +270,13 @@ namespace Bardiche.Modules
             string input = query.TrimStart(' ').TrimEnd(' ');
             if (!input.Contains(" "))
             {
-                List<string> current = Extensions.readRSS(Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
+                List<string> current = Extensions.readFile(Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
                 if (!current.Contains(input))
                 {
                     current.Add(input);
-                    Extensions.writeRSS(current, Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
+                    Extensions.writeLinesToFile(current, Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
+                    if (!RSSTorrentUtility.qBitTorrentAddSource(input))
+                        await ReplyAsync("``There was an issue updating the qBitTorrent autodownload config.``").ConfigureAwait(false);
                     RSSfeed.RSSRefresh();
                     await ReplyAsync("``A new RSS source has been added.``").ConfigureAwait(false);
                 }
@@ -276,16 +299,18 @@ namespace Bardiche.Modules
             string input = query.TrimStart(' ').TrimEnd(' ');
             if (!input.Contains(" "))
             {
-                List<string> general = Extensions.readRSS(Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
-                List<string> manga = Extensions.readRSS(Path.GetFullPath(Resources.manga_sources, Extensions.config_values.root_path));
-                List<string> torrents = Extensions.readRSS(Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
+                List<string> general = Extensions.readFile(Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
+                List<string> manga = Extensions.readFile(Path.GetFullPath(Resources.manga_sources, Extensions.config_values.root_path));
+                List<string> torrents = Extensions.readFile(Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
                 if (manga.Remove(input)||torrents.Remove(input)||general.Remove(input))
                 {
-                    Extensions.writeRSS(general, Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
-                    Extensions.writeRSS(manga, Path.GetFullPath(Resources.manga_sources, Extensions.config_values.root_path));
-                    Extensions.writeRSS(torrents, Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
+                    Extensions.writeLinesToFile(general, Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
+                    Extensions.writeLinesToFile(manga, Path.GetFullPath(Resources.manga_sources, Extensions.config_values.root_path));
+                    Extensions.writeLinesToFile(torrents, Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
                     RSSfeed.RSSRefresh();
                     await ReplyAsync("``The specified RSS source has been removed.``").ConfigureAwait(false);
+                    if (!RSSTorrentUtility.qBitTorrentRemoveSource(input))
+                        await ReplyAsync("``There was an issue updating the qBitTorrent autodownload config.``").ConfigureAwait(false);
                 }
                 else
                 {
@@ -300,24 +325,35 @@ namespace Bardiche.Modules
         }
 
         [Command("rssremoveallsources")]
-        [Summary("Removes all rss filters.")]
+        [Summary("Removes all rss sources.")]
         public async Task RSSRemoveAllSources()
         {
+            List<string> torrents = Extensions.readFile(Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
+            foreach (string source in torrents)
+            {
+                if (!RSSTorrentUtility.qBitTorrentRemoveSource(source))
+                {
+                    await ReplyAsync("``There was an issue updating the qBitTorrent autodownload config.``").ConfigureAwait(false);
+                    break;
+                }
+            }
+
             List<string> temp = new List<string>();
-            Extensions.writeRSS(temp, Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
-            Extensions.writeRSS(temp, Path.GetFullPath(Resources.manga_sources, Extensions.config_values.root_path));
-            Extensions.writeRSS(temp, Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
+            Extensions.writeLinesToFile(temp, Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
+            Extensions.writeLinesToFile(temp, Path.GetFullPath(Resources.manga_sources, Extensions.config_values.root_path));
+            Extensions.writeLinesToFile(temp, Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
             RSSfeed.RSSRefresh();
+
             await ReplyAsync("``All the RSS sources were removed.``").ConfigureAwait(false);
         }
 
         [Command("rssshowsources")]
-        [Summary("Shows list of shows in the rss filter.")]
+        [Summary("Shows list of sources in the rss filter.")]
         public async Task RSSShowSources()
         {
-            List<string> current = Extensions.readRSS(Path.GetFullPath(Resources.manga_sources, Extensions.config_values.root_path));
-            current.AddRange(Extensions.readRSS(Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path)));
-            current.AddRange(Extensions.readRSS(Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path)));
+            List<string> current = Extensions.readFile(Path.GetFullPath(Resources.manga_sources, Extensions.config_values.root_path));
+            current.AddRange(Extensions.readFile(Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path)));
+            current.AddRange(Extensions.readFile(Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path)));
 
             StringBuilder sb = new StringBuilder();
             if (current.Count == 0)

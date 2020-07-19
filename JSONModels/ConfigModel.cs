@@ -6,11 +6,14 @@ namespace Bardiche.JSONModels
     public class ConfigModel
     {
         public string bot_token { get; set; }
-        public ulong rss_channel_id { get; set; }
+        //public ulong rss_channel_id { get; set; }
         public List<ulong> bot_ids { get; set; }
         public List<ulong> admin_ids { get; set; }
         public Dictionary<ulong, TimeSpan> time_zones { get; set; }
         public string webhook_url { get; set; }
         public string root_path { get; set; }
+        public string qBittorrent_rss_sources { get; set; }
+        public string qBittorrent_rss_filters { get; set; }
+        public string qBittorrent_save_path { get; set; }
     }
 }
