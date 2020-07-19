@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Discord.Commands;
-using Bardiche.Modules;
 using Bardiche.Classes;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -48,7 +47,7 @@ namespace Bardiche
         RSSControlModule rssmod = new RSSControlModule();*/
 
         private static DateTime startTime = DateTime.Now;
-        private static string rootPath = @"D:\repos\Bardiche_v2.1";
+        private static string rootPath = @"C:\repos\Bardiche_v2.1";
 
         public async Task Start()
         {
@@ -68,7 +67,7 @@ namespace Bardiche
             await client.LoginAsync(TokenType.Bot, Extensions.config_values.bot_token);
             await client.StartAsync();
 
-            feed = new RSSfeed(client);
+            feed = new RSSfeed();
             fgoFeed = new FGONews();
             Extensions.setUpdate(startTime);
             //Extensions.RefreshDirectories();

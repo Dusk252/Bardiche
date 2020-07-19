@@ -20,7 +20,6 @@ namespace Bardiche.Classes
         private List<string> known_guid = new List<string>();
         private static HttpClient client = new HttpClient();
         private string webhook = Extensions.config_values.webhook_url;
-        private static IDiscordClient discordClient;
 
         private static List<string> a_filters;
         private static List<string> m_filters;
@@ -28,10 +27,9 @@ namespace Bardiche.Classes
         private static List<string> m_sources;
         private static List<string> g_sources;
 
-        public RSSfeed(IDiscordClient client)
+        public RSSfeed()
         {
             Console.WriteLine("Starting up RSS feed...");
-            discordClient = client;
             known_guid = File.ReadLines(Path.GetFullPath(Resources.nyaa_log, Extensions.config_values.root_path)).Reverse().Take(30).ToList();
             RSSRefresh();
         }
@@ -42,15 +40,15 @@ namespace Bardiche.Classes
             {
                 foreach (string source in a_sources)
                 {
-                    await SendHook(source, true, a_filters, true).ConfigureAwait(false);
+                    await SendHook(source, true, a_filters).ConfigureAwait(false);
                 }
                 foreach (string source in m_sources)
                 {
-                    await SendHook(source, true, m_filters, false).ConfigureAwait(false);
+                    await SendHook(source, true, m_filters).ConfigureAwait(false);
                 }
                 foreach (string source in g_sources)
                 {
-                    await SendHook(source, false, new List<string>(), false).ConfigureAwait(false);
+                    await SendHook(source, false, new List<string>()).ConfigureAwait(false);
                 }
                 await Task.Delay(77777);
             }
@@ -58,14 +56,14 @@ namespace Bardiche.Classes
 
         public static void RSSRefresh()
         {
-            a_filters = Extensions.readRSS(Path.GetFullPath(Resources.anime_filters, Extensions.config_values.root_path));
-            m_filters = Extensions.readRSS(Path.GetFullPath(Resources.manga_filters, Extensions.config_values.root_path));
-            a_sources = Extensions.readRSS(Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
-            m_sources = Extensions.readRSS(Path.GetFullPath(Resources.manga_sources, Extensions.config_values.root_path));
-            g_sources = Extensions.readRSS(Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
+            a_filters = Extensions.readFile(Path.GetFullPath(Resources.anime_filters, Extensions.config_values.root_path));
+            m_filters = Extensions.readFile(Path.GetFullPath(Resources.manga_filters, Extensions.config_values.root_path));
+            a_sources = Extensions.readFile(Path.GetFullPath(Resources.anime_sources, Extensions.config_values.root_path));
+            m_sources = Extensions.readFile(Path.GetFullPath(Resources.manga_sources, Extensions.config_values.root_path));
+            g_sources = Extensions.readFile(Path.GetFullPath(Resources.general_sources, Extensions.config_values.root_path));
         }
 
-        private async Task SendHook(string url, bool check_filters, List<string> filters, bool sendToNyaaChannel)
+        private async Task SendHook(string url, bool check_filters, List<string> filters)
         {
             try
             {
@@ -141,13 +139,12 @@ namespace Bardiche.Classes
                             response = await client.PostAsync(webhook, request).ConfigureAwait(false);
                             Thread.Sleep(500);
                         } while (response.StatusCode.ToString() == "BadRequest");
-                        if (sendToNyaaChannel)
-                            await Extensions.SendToNyaa(content.content, (ISocketMessageChannel)(await discordClient.GetChannelAsync(Extensions.config_values.rss_channel_id)));
+
                         temp.Add(item.link);
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e.StackTrace);
+                        Console.WriteLine("{0}: {1}", "RSS webhook error", e.StackTrace);
                     }
                 }
                 temp.Reverse();

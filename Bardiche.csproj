@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>Bardiche</RootNamespace>
-    <AssemblyName>Bardiche_v2.0</AssemblyName>
+    <AssemblyName>Bardiche</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
