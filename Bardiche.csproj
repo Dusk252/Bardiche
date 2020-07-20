@@ -19,6 +19,7 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0001" />
     <PackageReference Include="SixLabors.ImageSharp.Web" Version="1.0.0-beta0001" />
     <PackageReference Include="System.Collections.Specialized" Version="4.3.0" />
+    <PackageReference Include="TaskScheduler" Version="2.8.20" />
   </ItemGroup>
 
   <ItemGroup>

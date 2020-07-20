@@ -1,5 +1,6 @@
 ﻿using Bardiche.JSONModels;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Win32.TaskScheduler;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ namespace Bardiche.Classes
 {
     public static class RSSTorrentUtility
     {
+        private static string[] commonFilters = new string[] { "horriblesubs", "1080p", "720p", "1080", "720", "ohys" };
         public static bool qBitTorrentAddFilter(string[] filters)
         {
             qBittorrentFilters items = null;
@@ -41,7 +43,7 @@ namespace Bardiche.Classes
                         {
                             affectedFeeds = sources.Count == 0 ? new List<string>() : sources.Select(s => s.Value.url).ToList(),
                             mustContain = input,
-                            savePath = Extensions.config_values.qBittorrent_save_path + input
+                            savePath = Extensions.config_values.qBittorrent_save_path + input.removeFromString(commonFilters)
                         });
                     }
                 }
@@ -158,10 +160,23 @@ namespace Bardiche.Classes
             if (processes.Length > 0)
             {
                 Process process = processes[0];
-                string path = process.MainModule.FileName;
                 process.Kill();
-                Thread.Sleep(5000);
-                Process.Start(path);
+                process.WaitForExit();
+                qBittorrentStart();
+            }
+            else
+                qBittorrentStart();
+        }
+
+        public static void qBittorrentStart()
+        {
+            using (var ts = new TaskService())
+            {
+
+                var t = ts.Execute(@"C:\Program Files\qBittorrent\qbittorrent.exe")
+                    .Once()
+                    .Starting(DateTime.Now.AddSeconds(3))
+                    .AsTask("qBittorrent");
             }
         }
     }

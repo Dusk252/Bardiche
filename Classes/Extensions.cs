@@ -422,5 +422,22 @@ namespace Bardiche.Classes
             await channel.SendMessageAsync(msg).ConfigureAwait(false);
         }
 
+        public static string removeFromString(this string sourceString, string removeString)
+        {
+            int index = sourceString.IndexOf(removeString);
+            sourceString = (index < 0)
+                ? sourceString
+                : sourceString.Remove(index, removeString.Length);
+            return sourceString.Trim();
+        }
+
+        public static string removeFromString(this string sourceString, string[] removeString)
+        {
+            foreach(string rs in removeString)
+            {
+                sourceString = sourceString.removeFromString(rs);
+            }
+            return sourceString;
+        }
     }
 }
